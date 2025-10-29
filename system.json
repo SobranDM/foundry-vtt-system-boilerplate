@@ -10,6 +10,10 @@
     {
       "name": "Lee Talman",
       "discord": ".pizzaWizard"
+    },
+    {
+      "name": "Aaron Lutomski",
+      "discord": "SobranDM"
     }
   ],
   "url": "Replace this with a link to your public repository",
@@ -26,11 +30,11 @@
   ],
   "version": "2.0.0",
   "compatibility": {
-    "minimum": 11,
-    "verified": "11.315"
+    "minimum": "13",
+    "verified": "13"
   },
-  "esmodules": ["module/boilerplate.mjs"],
-  "styles": ["css/boilerplate.css"],
+  "esmodules": [ "module/boilerplate.mjs" ],
+  "styles": [ "css/boilerplate.css" ],
   "languages": [
     {
       "lang": "en",
@@ -38,8 +42,8 @@
       "path": "lang/en.json"
     }
   ],
-  "packs": [],
-  "packFolders": [],
+  "packs": [ ],
+  "packFolders": [ ],
   "socket": false,
   "manifest": "Replace this with a link to the /latest release system.json so people can receive updates after they've installed the system",
   "download": "This must link to a .zip file of the current version",

@@ -37,19 +37,14 @@ Hooks.once('init', function () {
   CONFIG.Actor.documentClass = BoilerplateActor;
   CONFIG.Item.documentClass = BoilerplateItem;
 
-  // Active Effects are never copied to the Actor,
-  // but will still apply to the Actor from within the Item
-  // if the transfer property on the Active Effect is true.
-  CONFIG.ActiveEffect.legacyTransferral = false;
-
-  // Register sheet application classes
-  Actors.unregisterSheet('core', ActorSheet);
-  Actors.registerSheet('boilerplate', BoilerplateActorSheet, {
+  // Register sheet application classes using the modern API
+  DocumentSheetConfig.registerSheet(Actor, 'boilerplate', BoilerplateActorSheet, {
+    types: ['character', 'npc'],
     makeDefault: true,
     label: 'BOILERPLATE.SheetLabels.Actor',
   });
-  Items.unregisterSheet('core', ItemSheet);
-  Items.registerSheet('boilerplate', BoilerplateItemSheet, {
+  DocumentSheetConfig.registerSheet(Item, 'boilerplate', BoilerplateItemSheet, {
+    types: ['item', 'feature', 'spell'],
     makeDefault: true,
     label: 'BOILERPLATE.SheetLabels.Item',
   });

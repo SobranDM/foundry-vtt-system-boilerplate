@@ -69,7 +69,7 @@ class SystemGenerator {
    * Delete the build directory so that we have a fresh start.
    */
   cleanBuildDir() {
-    fs.rmSync(`build`, {recursive: true, force: true});
+    fs.rmSync(`build`, { recursive: true, force: true });
   }
 
   /**
@@ -79,7 +79,7 @@ class SystemGenerator {
    */
   copyFiles(files) {
     files.forEach(source => {
-      fs.cpSync(source, `build/${this.packageName}/${source}`, {recursive: true}, (err) => {
+      fs.cpSync(source, `build/${this.packageName}/${source}`, { recursive: true }, (err) => {
         if (err) throw err;
       });
     });
@@ -89,14 +89,14 @@ class SystemGenerator {
       const dataModelFiles = globSync('src/datamodels/*');
       dataModelFiles.forEach(source => {
         const dest = source.replaceAll('\\', '/').replace('src/datamodels/', '');
-        fs.cpSync(source, `build/${this.packageName}/${dest}`, {recursive: true, force: true}, (err) => {
+        fs.cpSync(source, `build/${this.packageName}/${dest}`, { recursive: true, force: true }, (err) => {
           if (err) throw err;
         });
       });
     }
 
     // Remove data model source.
-    fs.rmSync(`build/${this.packageName}/src/datamodels`, {recursive: true, force: true});
+    fs.rmSync(`build/${this.packageName}/src/datamodels`, { recursive: true, force: true });
   }
 
   /**
@@ -196,6 +196,7 @@ class SystemGenerator {
     delete pkgJson.devDependencies.renamer;
     delete pkgJson.devDependencies.replace;
     delete pkgJson.devDependencies.inquirer;
+    // Keep TypeScript and fvtt-types as they're needed for the generated system
     // Write the new package.json
     fs.writeFileSync(`build/${this.packageName}/package.json`, JSON.stringify(pkgJson, null, '  '), 'utf8');
   }
@@ -255,7 +256,7 @@ inquirer
     generator.cleanBuildDir();
 
     // Glob Boilerplate's files so that we can process them.
-    glob('*', {ignore: ['node_modules/**'] }).then(files => {
+    glob('*', { ignore: ['node_modules/**'] }).then(files => {
       // Copy all files into the build dir.
       generator.copyFiles(files);
       // Replace boilerplate name mentions in files.

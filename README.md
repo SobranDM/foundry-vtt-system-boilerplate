@@ -1,8 +1,10 @@
 # Boilerplate System
 
-![Foundry v11](https://img.shields.io/badge/foundry-v11-green)
+![Foundry v13](https://img.shields.io/badge/foundry-v13-green)
 
 This system is a boilerplate system that you can use as a starting point for building your own custom systems. It's similar to Simple World-building, but has examples of creating attributes in code rather than dynamically through the UI.
+
+This boilerplate includes TypeScript support with [foundry-vtt-types](https://github.com/League-of-Foundry-Developers/foundry-vtt-types) for full type safety and IntelliSense when developing your system.
 
 ## Usage
 
@@ -19,7 +21,7 @@ Regardless of which method you choose, think carefully about your system's name.
 This system includes a generator CLI in `package.json`. To use it, you must have [node.js](https://nodejs.org) installed, and it's recommended that you install node 20 or later.
 
 > **Python Generator**
-> 
+>
 > If you would rather use Python than node, there’s an excellent Python-based generator created by Cussa at https://github.com/Cussa/fvtt-boilerplate-initializator. Give it a shot!
 
 Once you have npm installed, you can run the following in your terminal or command prompt:
@@ -74,6 +76,24 @@ This system includes a handful of helper CSS classes to help you lay out your sh
 - `flex-group-right`: Add a border, padding, and right align all items.
 - `grid`: When combined with the `grid-Ncol` classes, this will lay out child elements in a grid.
 - `grid-Ncol`: Replace `N` with any number from 1-12, such as `grid-3col`. When combined with `grid`, this will layout child elements in a grid with a number of columns equal to the number specified.
+
+## TypeScript Support
+
+This boilerplate includes TypeScript configuration with `foundry-vtt-types` for full type checking. The code files use `.mjs` extensions (as required by Foundry), but you get full TypeScript type checking.
+
+To check your types:
+
+```bash
+npm run typecheck
+```
+
+Or run in watch mode:
+
+```bash
+npm run typecheck:watch
+```
+
+The TypeScript configuration is already set up in `tsconfig.json`. The types are automatically available globally (e.g., `game`, `CONFIG`, `Actor`, etc.) thanks to the `fvtt-types` package.
 
 ## Compiling the CSS
 

@@ -38,33 +38,29 @@ Hooks.once('init', function () {
   // Define custom Document and DataModel classes
   CONFIG.Actor.documentClass = BoilerplateActor;
 
+  // Register data models using Object.assign() to safely merge with existing models
   // Note that you don't need to declare a DataModel
   // for the base actor/item classes - they are included
   // with the Character/NPC as part of super.defineSchema()
-  CONFIG.Actor.dataModels = {
-    character: models.BoilerplateCharacter,
-    npc: models.BoilerplateNPC
-  }
+  Object.assign(CONFIG.Actor.dataModels, {
+    'boilerplate.character': models.BoilerplateCharacter,
+    'boilerplate.npc': models.BoilerplateNPC
+  });
   CONFIG.Item.documentClass = BoilerplateItem;
-  CONFIG.Item.dataModels = {
-    item: models.BoilerplateItem,
-    feature: models.BoilerplateFeature,
-    spell: models.BoilerplateSpell
-  }
+  Object.assign(CONFIG.Item.dataModels, {
+    'boilerplate.item': models.BoilerplateItem,
+    'boilerplate.feature': models.BoilerplateFeature,
+    'boilerplate.spell': models.BoilerplateSpell
+  });
 
-  // Active Effects are never copied to the Actor,
-  // but will still apply to the Actor from within the Item
-  // if the transfer property on the Active Effect is true.
-  CONFIG.ActiveEffect.legacyTransferral = false;
-
-  // Register sheet application classes
-  Actors.unregisterSheet('core', ActorSheet);
-  Actors.registerSheet('boilerplate', BoilerplateActorSheet, {
+  // Register sheet application classes using the modern API
+  DocumentSheetConfig.registerSheet(Actor, 'boilerplate', BoilerplateActorSheet, {
+    types: ['character', 'npc'],
     makeDefault: true,
     label: 'BOILERPLATE.SheetLabels.Actor',
   });
-  Items.unregisterSheet('core', ItemSheet);
-  Items.registerSheet('boilerplate', BoilerplateItemSheet, {
+  DocumentSheetConfig.registerSheet(Item, 'boilerplate', BoilerplateItemSheet, {
+    types: ['item', 'feature', 'spell'],
     makeDefault: true,
     label: 'BOILERPLATE.SheetLabels.Item',
   });
