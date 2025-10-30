@@ -252,10 +252,21 @@ export class BoilerplateActorSheet extends HandlebarsApplicationMixin(DocumentSh
     await super._onRender(context, options);
 
     // Activate the initial tab if this is the first render
-    if (options.isFirstRender && this.tabGroups.primary) {
-      const initialTab = this.tabGroups.primary;
-      // Force activation to ensure the DOM gets the active class
-      this.changeTab(initialTab, "primary", { force: true, updatePosition: false });
+    if (options.isFirstRender) {
+      // Determine the correct initial tab based on actor type
+      let initialTabId;
+      if (this.actor.type === 'npc') {
+        // For NPCs, description is the initial tab (set in _prepareTabs)
+        initialTabId = 'description';
+      } else {
+        // For characters, use the initial tab from static TABS
+        initialTabId = this.constructor.TABS.primary.initial;
+      }
+
+      // Only activate if the tab exists
+      if (initialTabId && this.element.querySelector(`.tab[data-group="primary"][data-tab="${initialTabId}"]`)) {
+        this.changeTab(initialTabId, "primary", { force: true, updatePosition: false });
+      }
     }
 
     // Drag events for macros.
