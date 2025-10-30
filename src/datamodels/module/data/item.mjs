@@ -14,7 +14,7 @@ export default class BoilerplateItem extends BoilerplateItemBase {
     schema.roll = new fields.SchemaField({
       diceNum: new fields.NumberField({ ...requiredInteger, initial: 1, min: 1 }),
       diceSize: new fields.StringField({ initial: "d20" }),
-      diceBonus: new fields.StringField({ initial: "+@str.mod+ceil(@lvl / 2)" })
+      diceBonus: new fields.StringField({ initial: "+@abilities.str.mod+ceil(@lvl / 2)" })
     })
 
     schema.formula = new fields.StringField({ blank: true });
@@ -22,7 +22,13 @@ export default class BoilerplateItem extends BoilerplateItemBase {
     return schema;
   }
 
+  prepareBaseData() {
+    super.prepareBaseData();
+    // Initialize data structures before derived calculations
+  }
+
   prepareDerivedData() {
+    super.prepareDerivedData();
     // Build the formula dynamically using string interpolation
     const roll = this.roll;
 

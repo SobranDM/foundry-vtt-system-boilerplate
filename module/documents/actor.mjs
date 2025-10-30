@@ -85,11 +85,13 @@ export class BoilerplateActor extends Actor {
   _getCharacterRollData(data) {
     if (this.type !== 'character') return;
 
-    // Copy the ability scores to the top level, so that rolls can use
-    // formulas like `@str.mod + 4`.
+    // Copy the ability scores so that rolls can use formulas like `@abilities.dex.mod`
+    // Abilities are kept nested under data.abilities to match the @abilities.* format
     if (data.abilities) {
-      for (let [k, v] of Object.entries(data.abilities)) {
-        data[k] = foundry.utils.deepClone(v);
+      // Deep clone to avoid mutation issues
+      data.abilities = {};
+      for (let [k, v] of Object.entries(this.system.abilities || {})) {
+        data.abilities[k] = foundry.utils.deepClone(v);
       }
     }
 

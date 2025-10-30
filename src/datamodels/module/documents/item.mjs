@@ -23,8 +23,11 @@ export class BoilerplateItem extends Item {
     // Quit early if there's no parent actor
     if (!this.actor) return rollData;
 
-    // If present, add the actor's roll data
-    rollData.actor = this.actor.getRollData();
+    // If present, merge the actor's roll data into rollData
+    // This allows formulas to reference actor data like @abilities.dex.mod
+    // Note: Object.assign is required to merge abilities at the top level
+    // so that @abilities.dex.mod works (instead of requiring @actor.abilities.dex.mod)
+    Object.assign(rollData, this.actor.getRollData());
 
     return rollData;
   }
@@ -57,7 +60,8 @@ export class BoilerplateItem extends Item {
       const rollData = this.getRollData();
 
       // Invoke the roll and submit it to chat.
-      const roll = new Roll(rollData.formula, rollData.actor);
+      // rollData already contains both item and actor data merged together
+      const roll = new Roll(rollData.formula, rollData);
       // If you need to store the value first, uncomment the next line.
       // const result = await roll.evaluate();
       roll.toMessage({

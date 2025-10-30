@@ -32,6 +32,46 @@ export class BoilerplateActorSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const actor = context.document;
+    const actorData = actor.system;
+
+    // Add the actor's data to context for easier access, as well as flags.
+    context.actor = actor;
+    context.data = actor.toObject(); // Legacy compatibility
+    context.system = actorData;
+    context.flags = actor.flags;
+
+    // Add items array for compatibility with legacy getData() structure
+    context.items = Array.from(actor.items.values());
+    context.items.sort((a, b) => (a.sort || 0) - (b.sort || 0));
+
+    // Prepare character data and items.
+    if (actorData.type == 'character') {
+      this._prepareItems(context);
+      this._prepareCharacterData(context);
+    }
+
+    // Prepare NPC data and items.
+    if (actorData.type == 'npc') {
+      this._prepareItems(context);
+    }
+
+    // Add roll data for TinyMCE editors.
+    context.rollData = actor.getRollData();
+
+    // Prepare active effects
+    context.effects = prepareActiveEffectCategories(
+      // A generator that returns all effects stored on the actor
+      // as well as any items
+      actor.allApplicableEffects()
+    );
+
+    return context;
+  }
+
+  /** @override */
   getData() {
     // Retrieve the data structure from the base sheet. You can inspect or log
     // the context variable to see the structure, but some key properties for

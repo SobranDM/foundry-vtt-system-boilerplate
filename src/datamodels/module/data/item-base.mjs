@@ -8,4 +8,9 @@ export default class BoilerplateItemBase extends foundry.abstract.TypeDataModel 
 
     return schema;
   }
+
+  prepareBaseData() {
+    super.prepareBaseData();
+    // Initialize data structures before derived calculations
+  }
 }

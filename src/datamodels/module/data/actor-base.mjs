@@ -17,4 +17,9 @@ export default class BoilerplateActorBase extends foundry.abstract.TypeDataModel
 
     return schema;
   }
+
+  prepareBaseData() {
+    super.prepareBaseData();
+    // Initialize data structures before derived calculations
+  }
 }

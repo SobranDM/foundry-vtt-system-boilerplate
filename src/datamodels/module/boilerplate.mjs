@@ -39,18 +39,20 @@ Hooks.once('init', function () {
   CONFIG.Actor.documentClass = BoilerplateActor;
 
   // Register data models using Object.assign() to safely merge with existing models
+  // Note: Use just the type name (e.g., "character") not "systemId.type" because
+  // TypeDataField.getModelForType() looks up using the actor.type value directly
   // Note that you don't need to declare a DataModel
   // for the base actor/item classes - they are included
   // with the Character/NPC as part of super.defineSchema()
   Object.assign(CONFIG.Actor.dataModels, {
-    'boilerplate.character': models.BoilerplateCharacter,
-    'boilerplate.npc': models.BoilerplateNPC
+    'character': models.BoilerplateCharacter,
+    'npc': models.BoilerplateNPC
   });
   CONFIG.Item.documentClass = BoilerplateItem;
   Object.assign(CONFIG.Item.dataModels, {
-    'boilerplate.item': models.BoilerplateItem,
-    'boilerplate.feature': models.BoilerplateFeature,
-    'boilerplate.spell': models.BoilerplateSpell
+    'item': models.BoilerplateItem,
+    'feature': models.BoilerplateFeature,
+    'spell': models.BoilerplateSpell
   });
 
   // Register sheet application classes using the modern API

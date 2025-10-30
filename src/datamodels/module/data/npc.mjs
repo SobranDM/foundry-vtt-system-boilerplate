@@ -13,7 +13,13 @@ export default class BoilerplateNPC extends BoilerplateActorBase {
     return schema
   }
 
+  prepareBaseData() {
+    super.prepareBaseData();
+    // Initialize data structures before derived calculations
+  }
+
   prepareDerivedData() {
+    super.prepareDerivedData();
     this.xp = this.cr * this.cr * 100;
   }
 }
