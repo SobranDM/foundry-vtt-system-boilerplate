@@ -38,12 +38,12 @@ Hooks.once('init', function () {
   CONFIG.Item.documentClass = BoilerplateItem;
 
   // Register sheet application classes using the modern API
-  DocumentSheetConfig.registerSheet(Actor, 'boilerplate', BoilerplateActorSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, 'boilerplate', BoilerplateActorSheet, {
     types: ['character', 'npc'],
     makeDefault: true,
     label: 'BOILERPLATE.SheetLabels.Actor',
   });
-  DocumentSheetConfig.registerSheet(Item, 'boilerplate', BoilerplateItemSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(Item, 'boilerplate', BoilerplateItemSheet, {
     types: ['item', 'feature', 'spell'],
     makeDefault: true,
     label: 'BOILERPLATE.SheetLabels.Item',

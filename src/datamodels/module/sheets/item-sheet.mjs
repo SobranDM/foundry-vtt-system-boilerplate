@@ -1,3 +1,5 @@
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { DocumentSheetV2 } = foundry.applications.api;
 import {
   onManageActiveEffect,
   prepareActiveEffectCategories,
@@ -5,55 +7,124 @@ import {
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
- * @extends {ItemSheet}
+ * @extends {DocumentSheetV2}
+ * @mixes {HandlebarsApplication}
  */
-export class BoilerplateItemSheet extends ItemSheet {
+export class BoilerplateItemSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ['boilerplate', 'sheet', 'item'],
-      width: 520,
-      height: 480,
+  static DEFAULT_OPTIONS = {
+    classes: ['boilerplate', 'sheet', 'item'],
+    position: { width: 520, height: 480 },
+    form: {
+      submitOnChange: true
+    },
+    actions: {
+      manageEffect: BoilerplateItemSheet.#manageEffect,
+    }
+  };
+
+  /** @override */
+  static TABS = {
+    primary: {
       tabs: [
-        {
-          navSelector: '.sheet-tabs',
-          contentSelector: '.sheet-body',
-          initial: 'description',
-        },
+        { id: "description", label: "Description" },
+        { id: "attributes", label: "Attributes" },
+        { id: "effects", label: "Effects" },
       ],
-    });
+      initial: "description",
+    },
+  };
+
+  /** @override */
+  static PARTS = {
+    header: {
+      template: "systems/boilerplate/templates/item/parts/header.hbs",
+    },
+    tabs: {
+      template: "templates/generic/tab-navigation.hbs",
+    },
+    description: {
+      template: "systems/boilerplate/templates/item/parts/description.hbs",
+      scrollable: [""],
+    },
+    attributes: {
+      template: "systems/boilerplate/templates/item/parts/attributes.hbs",
+      scrollable: [""],
+    },
+    effects: {
+      template: "systems/boilerplate/templates/item/parts/effects.hbs",
+      scrollable: [""],
+    },
+  };
+
+  /**
+   * The Item document managed by this sheet.
+   * @type {Item}
+   */
+  get item() {
+    return this.document;
   }
 
   /** @override */
-  get template() {
-    const path = 'systems/boilerplate/templates/item';
-    // Return a single sheet for all item types.
-    // return `${path}/item-sheet.hbs`;
-
-    // Alternatively, you could use the following return statement to do a
-    // unique item sheet by type, like `weapon-sheet.hbs`.
-    return `${path}/item-${this.item.type}-sheet.hbs`;
+  _configureRenderParts(options) {
+    const parts = super._configureRenderParts(options);
+    // Dynamically set header template based on item type
+    const itemType = this.item.type;
+    // For now, all item types use the same header, but we could customize per type
+    parts.header.template = `systems/boilerplate/templates/item/parts/header.hbs`;
+    
+    // Customize templates based on item type if needed
+    // For example, features might not have attributes tab
+    if (itemType === 'feature' || itemType === 'spell') {
+      // These item types might have different attribute templates
+      // For now, keep the same
+    }
+    
+    return parts;
   }
 
   /* -------------------------------------------- */
 
   /** @override */
-  getData() {
-    // Retrieve base data structure.
-    const context = super.getData();
+  async _preparePartContext(partId, context, options) {
+    context = await super._preparePartContext(partId, context, options);
+    // For the tabs navigation part, convert tabs object to array
+    if (partId === 'tabs' && context.tabs) {
+      context.tabs = Object.values(context.tabs);
+    }
+    // For tab content parts, provide the tab context
+    else {
+      const tab = context.tabs?.[partId];
+      if (tab) {
+        context.tab = tab;
+      }
+    }
+    return context;
+  }
+
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = context.document;
 
     // Use a safe clone of the item data for further operations.
-    const itemData = context.data;
+    const itemData = item.toObject();
 
-    // Retrieve the roll data for TinyMCE editors.
-    context.rollData = this.item.getRollData();
-
-    // Add the item's data to context.data for easier access, as well as flags.
+    // Add the item's data to context for easier access, as well as flags.
+    context.item = item;
+    context.data = itemData; // Legacy compatibility
     context.system = itemData.system;
     context.flags = itemData.flags;
+    
+    // Template convenience variables
+    context.cssClass = this.options.classes.join(' ');
+    context.owner = item.isOwner;
+
+    // Retrieve the roll data for TinyMCE editors.
+    context.rollData = item.getRollData();
 
     // Prepare active effects for easier access
-    context.effects = prepareActiveEffectCategories(this.item.effects);
+    context.effects = prepareActiveEffectCategories(item.effects);
 
     return context;
   }
@@ -61,17 +132,26 @@ export class BoilerplateItemSheet extends ItemSheet {
   /* -------------------------------------------- */
 
   /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    
+    // Activate the initial tab if this is the first render
+    if (options.isFirstRender && this.tabGroups.primary) {
+      const initialTab = this.tabGroups.primary;
+      // Force activation to ensure the DOM gets the active class
+      this.changeTab(initialTab, "primary", { force: true, updatePosition: false });
+    }
+  }
 
-    // Everything below here is only needed if the sheet is editable
-    if (!this.isEditable) return;
+  /* -------------------------------------------- */
 
-    // Roll handlers, click handlers, etc. would go here.
-
-    // Active Effect management
-    html.on('click', '.effect-control', (ev) =>
-      onManageActiveEffect(ev, this.item)
-    );
+  /**
+   * Handle active effect management.
+   * @param {PointerEvent} event   The originating click event.
+   * @param {HTMLElement} target   The capturing HTML element.
+   * @private
+   */
+  static #manageEffect(event, target) {
+    onManageActiveEffect(event, this.item);
   }
 }

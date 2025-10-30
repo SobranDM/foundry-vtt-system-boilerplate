@@ -78,7 +78,21 @@ class SystemGenerator {
    * @param {Array} files Array of file paths.
    */
   copyFiles(files) {
+    // Legacy templates that are replaced by ApplicationV2 parts system
+    const legacyTemplates = [
+      'templates/actor/actor-character-sheet.hbs',
+      'templates/actor/actor-npc-sheet.hbs',
+      'templates/item/item-sheet.hbs',
+      'templates/item/item-item-sheet.hbs',
+      'templates/item/item-feature-sheet.hbs',
+      'templates/item/item-spell-sheet.hbs'
+    ];
+
     files.forEach(source => {
+      // Skip legacy template files
+      if (legacyTemplates.some(legacy => source.includes(legacy))) {
+        return;
+      }
       fs.cpSync(source, `build/${this.packageName}/${source}`, { recursive: true }, (err) => {
         if (err) throw err;
       });
@@ -256,7 +270,7 @@ inquirer
     generator.cleanBuildDir();
 
     // Glob Boilerplate's files so that we can process them.
-    glob('*', { ignore: ['node_modules/**'] }).then(files => {
+    glob('*', { ignore: ['node_modules/**', 'build/**'] }).then(files => {
       // Copy all files into the build dir.
       generator.copyFiles(files);
       // Replace boilerplate name mentions in files.

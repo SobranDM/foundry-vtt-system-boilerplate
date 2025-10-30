@@ -1,0 +1,29 @@
+<section class="tab {{tab.cssClass}}" data-group="primary" data-tab="features">
+  <section class="grid grid-3col">
+    <aside class="sidebar">
+
+      {{!-- The grid classes are defined in scss/global/_grid.scss. To use,
+      use both the "grid" and "grid-Ncol" class where "N" can be any number
+      from 1 to 12 and will create that number of columns.  --}}
+      <div class="abilities flexcol">
+        {{#each system.abilities as |ability key|}}
+        <div class="ability flexrow flex-group-center">
+          <label for="system.abilities.{{key}}.value" class="resource-label rollable flexlarge align-left"
+            data-roll="d20+@abilities.{{key}}.mod" data-label="{{ability.label}}">{{ability.label}}</label>
+          <input type="text" name="system.abilities.{{key}}.value" value="{{ability.value}}" data-dtype="Number"/>
+          <span class="ability-mod rollable" data-roll="d20+@abilities.{{key}}.mod"
+            data-label="{{ability.label}}">{{numberFormat ability.mod decimals=0 sign=true}}</span>
+        </div>
+        {{/each}}
+      </div>
+    </aside>
+
+    {{!-- For the main features list, span the right two columns --}}
+    <section class="main grid-span-2">
+      {{!-- This is a Handlebars partial. They're stored in the `/parts` folder next to this sheet, and defined in module/helpers/templates.mjs --}}
+      {{> "systems/boilerplate/templates/actor/parts/actor-features.hbs"}}
+    </section>
+
+  </section>
+</section>
+
