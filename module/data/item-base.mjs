@@ -11,6 +11,5 @@ export default class BoilerplateItemBase extends foundry.abstract.TypeDataModel 
 
   prepareBaseData() {
     super.prepareBaseData();
-    // Initialize data structures before derived calculations
   }
 }

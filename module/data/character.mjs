@@ -13,7 +13,6 @@ export default class BoilerplateCharacter extends BoilerplateActorBase {
       }),
     });
 
-    // Iterate over ability names and create a new SchemaField for each.
     const abilityKeys = Object.keys(CONFIG.BOILERPLATE.abilities);
     const abilitiesSchema = {};
     for (const ability of abilityKeys) {
@@ -28,21 +27,12 @@ export default class BoilerplateCharacter extends BoilerplateActorBase {
     return schema;
   }
 
-  prepareBaseData() {
-    super.prepareBaseData();
-    // Initialize data structures before derived calculations
-  }
-
   prepareDerivedData() {
     super.prepareDerivedData();
-    // Loop through ability scores, and add their modifiers to our sheet output.
     if (!this.abilities) return;
     for (const key in this.abilities) {
-      // Ensure the ability object exists
       if (!this.abilities[key]) continue;
-      // Calculate the modifier using d20 rules.
       this.abilities[key].mod = Math.floor((this.abilities[key].value - 10) / 2);
-      // Handle ability label localization.
       this.abilities[key].label = game.i18n.localize(CONFIG.BOILERPLATE.abilities[key]) ?? key;
     }
   }
@@ -50,7 +40,6 @@ export default class BoilerplateCharacter extends BoilerplateActorBase {
   getRollData() {
     const data = {};
 
-    // Copy the ability scores so that rolls can use formulas like `@abilities.dex.mod`
     if (this.abilities) {
       data.abilities = {};
       for (let [k, v] of Object.entries(this.abilities)) {
@@ -60,6 +49,6 @@ export default class BoilerplateCharacter extends BoilerplateActorBase {
 
     data.lvl = this.attributes.level.value;
 
-    return data
+    return data;
   }
 }

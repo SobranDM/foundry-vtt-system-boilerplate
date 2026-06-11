@@ -1,14 +1,16 @@
-.effects .item {
-  .effect-source,
-  .effect-duration,
-  .effect-controls {
-    text-align: center;
-    border-left: 1px solid #c9c7b8;
-    border-right: 1px solid #c9c7b8;
-    font-size: 12px;
-  }
+@mixin styles {
+  .effects .item {
+    .effect-source,
+    .effect-duration,
+    .effect-controls {
+      text-align: center;
+      border-left: 1px solid var(--color-border-light-primary);
+      border-right: 1px solid var(--color-border-light-primary);
+      font-size: 12px;
+    }
 
-  .effect-controls {
-    border: none;
+    .effect-controls {
+      border: none;
+    }
   }
 }

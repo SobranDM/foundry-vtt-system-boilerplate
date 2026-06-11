@@ -1,55 +1,71 @@
-.item-form {
-  font-family: $font-primary;
-}
+@use '../utils/typography' as *;
+@use '../utils/colors' as *;
 
-.sheet-header {
-  flex: 0 auto;
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 10px;
-
-  .profile-img {
-    flex: 0 0 100px;
-    height: 100px;
-    margin-right: 10px;
+@mixin styles {
+  .item-form {
+    font-family: $font-primary;
   }
 
-  .header-fields {
-    flex: 1;
-  }
+  .sheet-header {
+    flex: 0 auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: 10px;
 
-  h1.charname {
-    height: 50px;
-    padding: 0px;
-    margin: 5px 0;
-    border-bottom: 0;
-    input {
-      width: 100%;
-      height: 100%;
-      margin: 0;
+    .profile-img {
+      flex: 0 0 100px;
+      height: 100px;
+      margin-right: 10px;
+    }
+
+    .header-fields {
+      flex: 1;
+    }
+
+    h1.charname {
+      height: 50px;
+      padding: 0px;
+      margin: 5px 0;
+      border-bottom: 0;
+      input {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
     }
   }
-}
 
-.sheet-tabs {
-  flex: 0;
-}
-
-.sheet-body,
-.sheet-body .tab,
-.sheet-body .tab .editor {
-  height: 100%;
-}
-
-.tox {
-  .tox-editor-container {
-    background: $c-white;
+  .sheet-tabs {
+    flex: 0;
   }
 
-  .tox-edit-area {
-    padding: 0 8px;
+  .sheet-body,
+  .sheet-body .tab,
+  .sheet-body .tab prose-mirror {
+    height: 100%;
+  }
+
+  prose-mirror {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 200px;
+  }
+
+  // Core uses display:block on hover for prose-mirror toggles, which breaks flex icon centering.
+  prose-mirror:hover button.toggle:enabled {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+
+  prose-mirror button.toggle > i {
+    margin: 0;
+    line-height: 1;
   }
 }

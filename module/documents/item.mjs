@@ -1,51 +1,28 @@
 /**
- * Extend the basic Item with some very simple modifications.
+ * Extend the basic Item document.
  * @extends {Item}
  */
 export class BoilerplateItem extends Item {
-  /**
-   * Augment the basic Item data model with additional dynamic data.
-   */
+  /** @override */
   prepareData() {
-    // As with the actor class, items are documents that can have their data
-    // preparation methods overridden (such as prepareBaseData()).
     super.prepareData();
   }
 
-  /**
-   * Prepare a data object which defines the data schema used by dice roll commands against this Item
-   * @override
-   */
+  /** @override */
   getRollData() {
-    // Starts off by populating the roll data with `this.system`
     const rollData = { ...super.getRollData() };
-
-    // Quit early if there's no parent actor
     if (!this.actor) return rollData;
-
-    // If present, merge the actor's roll data into rollData
-    // This allows formulas to reference actor data like @abilities.dex.mod
-    // Note: Object.assign is required to merge abilities at the top level
-    // so that @abilities.dex.mod works (instead of requiring @actor.abilities.dex.mod)
     Object.assign(rollData, this.actor.getRollData());
-
     return rollData;
   }
 
-  /**
-   * Handle clickable rolls.
-   * @param {Event} event   The originating click event
-   * @private
-   */
+  /** @override */
   async roll() {
     const item = this;
-
-    // Initialize chat data.
     const speaker = ChatMessage.getSpeaker({ actor: this.actor });
     const rollMode = game.settings.get('core', 'rollMode');
     const label = `[${item.type}] ${item.name}`;
 
-    // If there's no roll data, send a chat message.
     if (!this.system.formula) {
       ChatMessage.create({
         speaker: speaker,
@@ -53,16 +30,9 @@ export class BoilerplateItem extends Item {
         flavor: label,
         content: item.system.description ?? '',
       });
-    }
-    // Otherwise, create a roll and send a chat message from it.
-    else {
-      // Retrieve roll data.
+    } else {
       const rollData = this.getRollData();
-
-      // Invoke the roll and submit it to chat.
       const roll = new Roll(rollData.formula, rollData);
-      // If you need to store the value first, uncomment the next line.
-      // const result = await roll.evaluate();
       roll.toMessage({
         speaker: speaker,
         rollMode: rollMode,

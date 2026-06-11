@@ -19,7 +19,10 @@ export class BoilerplateItemSheet extends HandlebarsApplicationMixin(DocumentShe
       submitOnChange: true
     },
     actions: {
-      manageEffect: BoilerplateItemSheet.#manageEffect,
+      create: BoilerplateItemSheet.#onEffectAction,
+      edit: BoilerplateItemSheet.#onEffectAction,
+      delete: BoilerplateItemSheet.#onEffectAction,
+      toggle: BoilerplateItemSheet.#onEffectAction,
     }
   };
 
@@ -123,6 +126,11 @@ export class BoilerplateItemSheet extends HandlebarsApplicationMixin(DocumentShe
     // Retrieve the roll data for TinyMCE editors.
     context.rollData = item.getRollData();
 
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      item.system.description ?? "",
+      { relativeTo: item, secrets: item.isOwner, rollData: context.rollData }
+    );
+
     // Prepare active effects for easier access
     context.effects = prepareActiveEffectCategories(item.effects);
 
@@ -134,12 +142,11 @@ export class BoilerplateItemSheet extends HandlebarsApplicationMixin(DocumentShe
   /** @override */
   async _onRender(context, options) {
     await super._onRender(context, options);
-    
-    // Activate the initial tab if this is the first render
-    if (options.isFirstRender && this.tabGroups.primary) {
-      const initialTab = this.tabGroups.primary;
-      // Force activation to ensure the DOM gets the active class
-      this.changeTab(initialTab, "primary", { force: true, updatePosition: false });
+
+    const activeTab = this.tabGroups?.primary
+      ?? this.constructor.TABS.primary.initial;
+    if (activeTab && this.element.querySelector(`.tab[data-group="primary"][data-tab="${activeTab}"]`)) {
+      this.changeTab(activeTab, "primary", { force: true, updatePosition: false });
     }
   }
 
@@ -151,7 +158,7 @@ export class BoilerplateItemSheet extends HandlebarsApplicationMixin(DocumentShe
    * @param {HTMLElement} target   The capturing HTML element.
    * @private
    */
-  static #manageEffect(event, target) {
-    onManageActiveEffect(event, this.item);
+  static #onEffectAction(event, target) {
+    onManageActiveEffect(event, this.item, target);
   }
 }

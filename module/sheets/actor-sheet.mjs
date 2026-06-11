@@ -22,7 +22,10 @@ export class BoilerplateActorSheet extends HandlebarsApplicationMixin(DocumentSh
       editItem: BoilerplateActorSheet.#editItem,
       createItem: BoilerplateActorSheet.#createItem,
       deleteItem: BoilerplateActorSheet.#deleteItem,
-      manageEffect: BoilerplateActorSheet.#manageEffect,
+      create: BoilerplateActorSheet.#onEffectAction,
+      edit: BoilerplateActorSheet.#onEffectAction,
+      delete: BoilerplateActorSheet.#onEffectAction,
+      toggle: BoilerplateActorSheet.#onEffectAction,
       roll: BoilerplateActorSheet.#onRoll,
     }
   };
@@ -159,18 +162,23 @@ export class BoilerplateActorSheet extends HandlebarsApplicationMixin(DocumentSh
     context.items.sort((a, b) => (a.sort || 0) - (b.sort || 0));
 
     // Prepare character data and items.
-    if (actorData.type == 'character') {
+    if (actor.type === 'character') {
       this._prepareItems(context);
       this._prepareCharacterData(context);
     }
 
     // Prepare NPC data and items.
-    if (actorData.type == 'npc') {
+    if (actor.type === 'npc') {
       this._prepareItems(context);
     }
 
     // Add roll data for TinyMCE editors.
     context.rollData = actor.getRollData();
+
+    context.biographyHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      actor.system.biography ?? "",
+      { relativeTo: actor, secrets: actor.isOwner, rollData: context.rollData }
+    );
 
     // Prepare active effects
     context.effects = prepareActiveEffectCategories(
@@ -190,10 +198,7 @@ export class BoilerplateActorSheet extends HandlebarsApplicationMixin(DocumentSh
    * @return {undefined}
    */
   _prepareCharacterData(context) {
-    // Handle ability scores.
-    for (let [k, v] of Object.entries(context.system.abilities)) {
-      v.label = game.i18n.localize(CONFIG.BOILERPLATE.abilities[k]) ?? k;
-    }
+    // Ability labels and modifiers are prepared by the TypeDataModel.
   }
 
   /**
@@ -251,22 +256,10 @@ export class BoilerplateActorSheet extends HandlebarsApplicationMixin(DocumentSh
   async _onRender(context, options) {
     await super._onRender(context, options);
 
-    // Activate the initial tab if this is the first render
-    if (options.isFirstRender) {
-      // Determine the correct initial tab based on actor type
-      let initialTabId;
-      if (this.actor.type === 'npc') {
-        // For NPCs, description is the initial tab (set in _prepareTabs)
-        initialTabId = 'description';
-      } else {
-        // For characters, use the initial tab from static TABS
-        initialTabId = this.constructor.TABS.primary.initial;
-      }
-
-      // Only activate if the tab exists
-      if (initialTabId && this.element.querySelector(`.tab[data-group="primary"][data-tab="${initialTabId}"]`)) {
-        this.changeTab(initialTabId, "primary", { force: true, updatePosition: false });
-      }
+    const activeTab = this.tabGroups?.primary
+      ?? (this.actor.type === 'npc' ? 'description' : this.constructor.TABS.primary.initial);
+    if (activeTab && this.element.querySelector(`.tab[data-group="primary"][data-tab="${activeTab}"]`)) {
+      this.changeTab(activeTab, "primary", { force: true, updatePosition: false });
     }
 
     // Drag events for macros.
@@ -310,6 +303,7 @@ export class BoilerplateActorSheet extends HandlebarsApplicationMixin(DocumentSh
       system: data,
     };
     delete itemData.system['type'];
+    delete itemData.system['action'];
     return await Item.create(itemData, { parent: this.actor });
   }
 
@@ -334,13 +328,13 @@ export class BoilerplateActorSheet extends HandlebarsApplicationMixin(DocumentSh
    * @param {HTMLElement} target   The capturing HTML element.
    * @private
    */
-  static #manageEffect(event, target) {
+  static #onEffectAction(event, target) {
     const row = target.closest('li');
     const document =
       row.dataset.parentId === this.actor.id
         ? this.actor
         : this.actor.items.get(row.dataset.parentId);
-    onManageActiveEffect(event, document);
+    onManageActiveEffect(event, document, target);
   }
 
   /**
